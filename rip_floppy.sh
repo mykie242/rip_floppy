@@ -31,11 +31,11 @@ is_disk_ready() {
   [ ! -z "${mount_point}" ]
 }
 
-# Function to check if the floppy disk is empty, running dot_clean before checking
+# Function to check if the floppy disk is empty, ignoring hidden system files
 is_disk_empty() {
   local mount_point=$(diskutil info "${DISK_PATH}" | grep 'Mount Point' | awk -F ':' '{print $2}' | xargs)
-  dot_clean "${mount_point}"
-  file_count=$(find "${mount_point}" -type f 2>/dev/null | wc -l | tr -d ' ')
+  rm -rf "${mount_point}/.{,_.}{fseventsd,Spotlight-V*,Trashes}"
+  file_count=$(find "${mount_point}" -type f ! -path "${mount_point}/.fseventsd/*" ! -path "${mount_point}/.Spotlight-V*" ! -path "${mount_point}/.Trashes/*" 2>/dev/null | wc -l | tr -d ' ')
   [ "${file_count}" -eq 0 ]
 }
 
